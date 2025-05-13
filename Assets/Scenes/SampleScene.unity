@@ -372,6 +372,15 @@ MonoBehaviour:
   width: 6
   height: 10
   titleObject: {fileID: 4842340370961226254, guid: f58a42bc60fd940ac9f1b4e0e3212a25, type: 3}
+  availablePieces:
+  - {fileID: 1869235873609158386, guid: 280546f9e97484fccb11181ef9b31758, type: 3}
+  - {fileID: 554652154624133144, guid: d771ca1b404874ec7935c0cbd5072746, type: 3}
+  - {fileID: 1067853263044473211, guid: 800fffba6eca146bb95f0b502bbf4e45, type: 3}
+  - {fileID: 5111215691329791170, guid: 4d5f07d358c994f57915dd24177e7790, type: 3}
+  - {fileID: 2424091529261596406, guid: 64754cc320cbe42829e899fa111904f4, type: 3}
+  - {fileID: 4795679852159732590, guid: 0223f201d9f35459a885900db63476a7, type: 3}
+  - {fileID: 2041771254410870105, guid: b2abcd5239f094dfda19966aa8a7553c, type: 3}
+  - {fileID: 2019586142463425078, guid: 1edca019040ae49bd8eee2c80d60086b, type: 3}
   cameraSizeOffset: 0
   cameraVerticalOffset: 0
 --- !u!4 &1739952511

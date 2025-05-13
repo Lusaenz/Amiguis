@@ -1,16 +1,16 @@
 using UnityEngine;
 
-public class Tile : MonoBehaviour
+public class Tile : MonoBehaviour // Sistema de coordenadas 
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    public int x;
+    public int y;
+    public Board board;
 
-    // Update is called once per frame
-    void Update()
+    public void Setup(int x_, int y_, Board board_)
     {
-        
+        x = x_;
+        y = y_;
+        board =  board_;
+
     }
 }
