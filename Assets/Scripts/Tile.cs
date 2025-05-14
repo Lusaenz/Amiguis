@@ -10,7 +10,20 @@ public class Tile : MonoBehaviour // Sistema de coordenadas
     {
         x = x_;
         y = y_;
-        board =  board_;
+        board = board_;
 
+    }
+    //Deteccion den input del Mouse
+    public void OnMouseDown()
+    {
+        board.TileDown(this);
+    }
+    public void OnMouseEnter()
+    {
+        board.TileOver(this);
+    }
+    public void OnMouseUp()
+    {
+        board.TileUp(this);
     }
 }
