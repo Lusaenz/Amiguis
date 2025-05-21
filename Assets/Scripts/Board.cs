@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using System.Linq;
+using System.Collections.Generic;
 
 public class Board : MonoBehaviour
 {
@@ -15,6 +17,8 @@ public class Board : MonoBehaviour
 
     Tile startTile;
     Tile endTile;
+
+    bool swappingPieces = false;
     void Start()
     {
         Tiles = new Tile[width, height];
@@ -87,7 +91,7 @@ public class Board : MonoBehaviour
     }
 
     //funcion que se encarga de actualizar la informacion del sistema de cooordenadas (los arrays de dos dimensiones) y de llamar la funcion de Move para cada pieza.
-    private void SwapTitles()
+    IEnumerator SwapTitles()
     {
         //Referencias a las piezas que se estan moviemdo.
         var StarPiece = Pieces[startTile.x, startTile.y];
@@ -98,21 +102,93 @@ public class Board : MonoBehaviour
 
         Pieces[startTile.x, startTile.y] = EndPiece;
         Pieces[endTile.x, endTile.y] = StarPiece;
+
+        yield return new WaitForSeconds(0.6f);
     }
     // Funcion tiene como proposito verificar sis dos tile estan uno al lado del otro, si son adyacentes en linea recta no en diagonal./ Funcion de limitacion de movimiento de piezas,
     public bool IsCloseTo(Tile start, Tile end)
     {
         //Primera condición: start.x y end.x difieren en 1 y y es igual → significa que están en la misma fila, pero en columnas vecinas (izquierda o derecha).
-        if(Math.Abs((start.x-end.x)) == 1 && start.y == end.y) //Math.Abs(...) == 1: esto verifica que haya una diferencia de solo una unidad entre las posiciones (es decir, que estén justo al lado).
+        if (Math.Abs((start.x - end.x)) == 1 && start.y == end.y) //Math.Abs(...) == 1: esto verifica que haya una diferencia de solo una unidad entre las posiciones (es decir, que estén justo al lado).
         {
             return true;
         }
         //Segunda condición: start.y y end.y difieren en 1 y x es igual → están en la misma columna, pero en filas vecinas (arriba o abajo).
-        if(Math.Abs((start.y-end.y)) == 1 && start.x == end.x)
+        if (Math.Abs((start.y - end.y)) == 1 && start.x == end.x)
         {
             return true;
         }
         //Si no se cumple ninguna de estas dos, devuelve false → no están uno al lado del otro.
         return false;
     }
+    //Conseguir los mach en una sola direccion.
+
+    public List<Piece> GetMatchByDirection(int xpos, int ypos, Vector2 direction, int minPiece = 3)
+    {
+        List<Piece> matches = new List<Piece>();
+        Piece startPiece = Pieces[xpos, ypos];
+        matches.Add(startPiece);
+
+        int maxVal = Mathf.Max(width, height);
+
+        for (int i = 1; i < maxVal; i++)
+        {
+            int nextX = xpos + (int)direction.x * i;
+            int nextY = ypos + (int)direction.y * i;
+
+            if (nextX >= 0 && nextX < width && nextY >= 0 && nextY < height)
+            {
+                var nextPiece = Pieces[nextX, nextY];
+                if (nextPiece != null && nextPiece.pieceType == startPiece.pieceType)
+                {
+                    matches.Add(nextPiece);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        if (matches.Count >= minPiece)
+        {
+            return matches;
+        }
+
+        return null;
+    }
+
+    public List<Piece> GetMatchByPiece(int xpos, int ypos, int minPiece = 3)
+    {
+        var upMatches = GetMatchByDirection(xpos, ypos, new Vector2(0, 1), 2);
+        var downMatches = GetMatchByDirection(xpos, ypos, new Vector2(0, -1), 2);
+        var rightMatches = GetMatchByDirection(xpos, ypos, new Vector2(1, 0), 2);
+        var leftMatches = GetMatchByDirection(xpos, ypos, new Vector2(-1, 0), 2);
+
+        if (upMatches == null) upMatches = new List<Piece>();
+        if (downMatches == null) downMatches = new List<Piece>();
+        if (rightMatches == null) rightMatches = new List<Piece>();
+        if (leftMatches == null) leftMatches = new List<Piece>();
+
+        var verticalMatches = upMatches.Union(downMatches).ToList();
+        var horizontalMatches = leftMatches.Union(rightMatches).ToList();
+
+        var foundMatches = new List<Piece>();
+
+        if (verticalMatches.Count >= minPiece)
+        {
+            foundMatches = foundMatches.Union(verticalMatches).ToList();
+        }
+        if (horizontalMatches.Count >= minPiece)
+        {
+            foundMatches = foundMatches.Union(horizontalMatches).ToList();
+        }
+
+        return foundMatches;
+    }
+
 }
