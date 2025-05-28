@@ -131,23 +131,12 @@ public class Board : MonoBehaviour
 
         yield return new WaitForSeconds(0.6f);
 
-        bool foundMatch = false;
         var startMatches = GetMatchByPiece(startTile.x, startTile.y, 3);
         var endMatches = GetMatchByPiece(endTile.x, endTile.y, 3);
 
-        startMatches.ForEach(piece =>
-        {
-            foundMatch = true;
-            CleartePieceAt(piece.x, piece.y);
-        });
+        var allMatches = startMatches.Union(endMatches).ToList();
 
-        endMatches.ForEach(piece =>
-        {
-            foundMatch = true;
-            CleartePieceAt(piece.x, piece.y);
-        });
-
-        if (!foundMatch)
+        if (allMatches.Count == 0)
         {
             // Si no se encontraron matches, deshacer el movimiento.
             StarPiece.Move(startTile.x, startTile.y);
@@ -155,12 +144,71 @@ public class Board : MonoBehaviour
             Pieces[startTile.x, startTile.y] = StarPiece;
             Pieces[endTile.x, endTile.y] = EndPiece;
         }
-
+        else
+        {
+            CleartePieces(allMatches);
+        }
         startTile = null;
         endTile = null;
         swappingPieces = false;
 
         yield return null;
+    }
+
+    private void CleartePieces(List<Piece> piecesToClear)
+    {
+        piecesToClear.ForEach(piece =>
+        {
+            CleartePieceAt(piece.x, piece.y);
+        });
+        List<int> columns = GetColumns(piecesToClear);
+        List<Piece> collapsdPieces = collapseColumns(columns, 0.3f);
+    }
+    private List<int> GetColumns(List<Piece> piecesToClear)
+    {
+        var result = new List<int>();
+        piecesToClear.ForEach(piece =>
+        {
+            if (!result.Contains(piece.x))
+            {
+                result.Add(piece.x);
+            }
+
+        });
+
+        return result;
+    }
+    private List<Piece> collapseColumns(List<int> columns, float timeToCollapse)
+    {
+        List<Piece> movingPieces = new List<Piece>();
+        for (int i = 0; i < columns.Count; i++)
+        {
+            var column = columns[i];
+            for (int y = 0; y < height; y++)
+            {
+                if (Pieces[column, y] == null)
+                {
+                    for (int yplus = y + 1; yplus < height; yplus++)
+                    {
+                        if (Pieces[column, yplus] != null)
+                        {
+                            Pieces[column, yplus].Move(column, y);
+                            Pieces[column, y] = Pieces[column, yplus];
+                            if (!movingPieces.Contains(Pieces[column, y]))
+                            {
+                                movingPieces.Add(Pieces[column, y]);
+                            }
+                            Pieces[column, yplus] = null;
+                            break;
+                        }
+
+                    }
+
+                }
+            }
+        }
+        return movingPieces;
+
     }
 
     // Funcion tiene como proposito verificar sis dos tile estan uno al lado del otro, si son adyacentes en linea recta no en diagonal./ Funcion de limitacion de movimiento de piezas,
