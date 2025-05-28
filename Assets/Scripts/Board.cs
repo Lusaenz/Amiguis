@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections;
 
 public class Board : MonoBehaviour
 {
@@ -30,17 +31,44 @@ public class Board : MonoBehaviour
 
     private void SetupPieces()
     {
+        int maxIterations = 50;
+        int currentIterations = 0;
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                var selectedPiece = availablePieces[UnityEngine.Random.Range(0, availablePieces.Length)];
-                var o = Instantiate(selectedPiece, new Vector3(x, y, -5), Quaternion.identity);
-                o.transform.parent = transform;
-                Pieces[x, y] = o.GetComponent<Piece>();
-                Pieces[x, y]?.Setup(x, y, this);
+                currentIterations = 0;
+                var newPiece = CreatePieceAt(x, y);
+                while (HasPreviousMatches(x, y))
+                {
+                    CleartePieceAt(x, y);
+                    newPiece = CreatePieceAt(x, y);
+                    currentIterations++;
+                    if (currentIterations > maxIterations)
+                    {
+                        break;
+                    }
+
+                }
+
             }
         }
+    }
+
+    private void CleartePieceAt(int x, int y)
+    {
+        var pieceToClear = Pieces[x, y];
+        Destroy(pieceToClear.gameObject);
+        Pieces[x, y] = null;
+    }
+    private Piece CreatePieceAt(int x, int y)
+    {
+        var selectedPiece = availablePieces[UnityEngine.Random.Range(0, availablePieces.Length)];
+        var o = Instantiate(selectedPiece, new Vector3(x, y, -5), Quaternion.identity);
+        o.transform.parent = transform;
+        Pieces[x, y] = o.GetComponent<Piece>();
+        Pieces[x, y]?.Setup(x, y, this);
+        return Pieces[x, y];
     }
     private void PositionCamera()
     {
@@ -83,17 +111,15 @@ public class Board : MonoBehaviour
     {
         if (startTile != null && endTile != null && IsCloseTo(startTile, endTile))
         {
-            SwapTitles();
+            StartCoroutine(SwapTitles());
         }
-        startTile = null; // se reinicia la pieza inicial y final, osea las que se mueven,
-        endTile = null;
-
     }
 
     //funcion que se encarga de actualizar la informacion del sistema de cooordenadas (los arrays de dos dimensiones) y de llamar la funcion de Move para cada pieza.
+    //Esta funcion mueve la piezas, espere que las piezas termine de moversen busca los matches y nos devuelve los resultados.
     IEnumerator SwapTitles()
     {
-        //Referencias a las piezas que se estan moviemdo.
+        // Referencias a las piezas que se están moviendo.
         var StarPiece = Pieces[startTile.x, startTile.y];
         var EndPiece = Pieces[endTile.x, endTile.y];
 
@@ -104,7 +130,39 @@ public class Board : MonoBehaviour
         Pieces[endTile.x, endTile.y] = StarPiece;
 
         yield return new WaitForSeconds(0.6f);
+
+        bool foundMatch = false;
+        var startMatches = GetMatchByPiece(startTile.x, startTile.y, 3);
+        var endMatches = GetMatchByPiece(endTile.x, endTile.y, 3);
+
+        startMatches.ForEach(piece =>
+        {
+            foundMatch = true;
+            CleartePieceAt(piece.x, piece.y);
+        });
+
+        endMatches.ForEach(piece =>
+        {
+            foundMatch = true;
+            CleartePieceAt(piece.x, piece.y);
+        });
+
+        if (!foundMatch)
+        {
+            // Si no se encontraron matches, deshacer el movimiento.
+            StarPiece.Move(startTile.x, startTile.y);
+            EndPiece.Move(endTile.x, endTile.y);
+            Pieces[startTile.x, startTile.y] = StarPiece;
+            Pieces[endTile.x, endTile.y] = EndPiece;
+        }
+
+        startTile = null;
+        endTile = null;
+        swappingPieces = false;
+
+        yield return null;
     }
+
     // Funcion tiene como proposito verificar sis dos tile estan uno al lado del otro, si son adyacentes en linea recta no en diagonal./ Funcion de limitacion de movimiento de piezas,
     public bool IsCloseTo(Tile start, Tile end)
     {
@@ -121,8 +179,16 @@ public class Board : MonoBehaviour
         //Si no se cumple ninguna de estas dos, devuelve false → no están uno al lado del otro.
         return false;
     }
-    //Conseguir los mach en una sola direccion.
+    // Verifica si hay matches hacia abajo o a la izquierda de la pieza actual
+    bool HasPreviousMatches(int posx, int posy)
+    {
+        var downMatches = GetMatchByDirection(posx, posy, new Vector2(0, -1), 2);
+        var leftMatches = GetMatchByDirection(posx, posy, new Vector2(-1, 0), 2);
 
+        return (downMatches?.Count > 0 || leftMatches?.Count > 0);
+    }
+
+    // Busca matches en una dirección (usado para matches horizontales o verticales)
     public List<Piece> GetMatchByDirection(int xpos, int ypos, Vector2 direction, int minPiece = 3)
     {
         List<Piece> matches = new List<Piece>();
@@ -162,6 +228,7 @@ public class Board : MonoBehaviour
         return null;
     }
 
+    // Busca matches completos de una pieza, combinando direcciones opuestas
     public List<Piece> GetMatchByPiece(int xpos, int ypos, int minPiece = 3)
     {
         var upMatches = GetMatchByDirection(xpos, ypos, new Vector2(0, 1), 2);
