@@ -6,6 +6,7 @@ using System.Collections;
 
 public class Board : MonoBehaviour
 {
+    public float timeBetweenPieces = 0.05f;
     public int width;
     public int height;
     public GameObject titleObject;
@@ -26,10 +27,10 @@ public class Board : MonoBehaviour
         Pieces = new Piece[width, height];
         SetupBoard();
         PositionCamera();
-        SetupPieces();
+        StartCoroutine(SetupPieces());
     }
 
-    private void SetupPieces()
+    private IEnumerator SetupPieces()
     {
         int maxIterations = 50;
         int currentIterations = 0;
@@ -37,25 +38,30 @@ public class Board : MonoBehaviour
         {
             for (int y = 0; y < height; y++)
             {
-                currentIterations = 0;
-                var newPiece = CreatePieceAt(x, y);
-                while (HasPreviousMatches(x, y))
+                yield return new WaitForSeconds(timeBetweenPieces);
+                if (Pieces[x, y] == null)
                 {
-                    CleartePieceAt(x, y);
-                    newPiece = CreatePieceAt(x, y);
-                    currentIterations++;
-                    if (currentIterations > maxIterations)
+                    currentIterations = 0;
+                    var newPiece = CreatePieceAt(x, y);
+                    while (HasPreviousMatches(x, y))
                     {
-                        break;
+                        ClearPieceAt(x, y);
+                        newPiece = CreatePieceAt(x, y);
+                        currentIterations++;
+                        if (currentIterations > maxIterations)
+                        {
+                            break;
+                        }
+
                     }
 
                 }
-
             }
         }
+        yield return null;
     }
 
-    private void CleartePieceAt(int x, int y)
+    private void ClearPieceAt(int x, int y)
     {
         var pieceToClear = Pieces[x, y];
         Destroy(pieceToClear.gameObject);
@@ -99,19 +105,29 @@ public class Board : MonoBehaviour
 
     public void TileDown(Tile tile_) // funcion de cuando selecciono una casilla
     {
-        startTile = tile_;
+        if (!swappingPieces)
+        {
+            startTile = tile_;
+        }
 
     }
     public void TileOver(Tile tile_) // funcion de cuando arrastro el mouse
     {
-        endTile = tile_;
+        if (!swappingPieces)
+        {
+            endTile = tile_;
+        }
 
     }
     public void TileUp(Tile tile_) // funcion de cuando suelto el mouse
     {
-        if (startTile != null && endTile != null && IsCloseTo(startTile, endTile))
+        if (!swappingPieces)
         {
-            StartCoroutine(SwapTitles());
+            if (startTile != null && endTile != null && IsCloseTo(startTile, endTile))
+            {
+                StartCoroutine(SwapTitles());
+            }
+
         }
     }
 
@@ -119,6 +135,7 @@ public class Board : MonoBehaviour
     //Esta funcion mueve la piezas, espere que las piezas termine de moversen busca los matches y nos devuelve los resultados.
     IEnumerator SwapTitles()
     {
+        swappingPieces = true;
         // Referencias a las piezas que se están moviendo.
         var StarPiece = Pieces[startTile.x, startTile.y];
         var EndPiece = Pieces[endTile.x, endTile.y];
@@ -146,7 +163,7 @@ public class Board : MonoBehaviour
         }
         else
         {
-            CleartePieces(allMatches);
+            ClearPieces(allMatches);
         }
         startTile = null;
         endTile = null;
@@ -155,14 +172,47 @@ public class Board : MonoBehaviour
         yield return null;
     }
 
-    private void CleartePieces(List<Piece> piecesToClear)
+    private void ClearPieces(List<Piece> piecesToClear)
     {
         piecesToClear.ForEach(piece =>
         {
-            CleartePieceAt(piece.x, piece.y);
+            ClearPieceAt(piece.x, piece.y);
         });
         List<int> columns = GetColumns(piecesToClear);
         List<Piece> collapsdPieces = collapseColumns(columns, 0.3f);
+        FindMatchsRecursively(collapsdPieces);
+    }
+    private void FindMatchsRecursively(List<Piece> collapsdPieces)
+    {
+        StartCoroutine(FindMatchsRecursivelyCoroutine(collapsdPieces));
+    }
+    IEnumerator FindMatchsRecursivelyCoroutine(List<Piece> collapsdPieces)
+    {
+        yield return new WaitForSeconds(1f);
+        List<Piece> newMatches = new List<Piece>();
+        collapsdPieces.ForEach(piece =>
+        {
+            var matches = GetMatchByPiece(piece.x, piece.y, 3);
+            if (matches != null)
+            {
+                newMatches = newMatches.Union(matches).ToList();
+                ClearPieces(matches);
+            }
+        });
+        if (newMatches.Count > 0)
+        {
+            var newCollapsedPieces = collapseColumns(GetColumns(newMatches), 0.3f);
+            FindMatchsRecursively(newCollapsedPieces);
+        }
+        else
+        {
+            yield return new WaitForSeconds(0.1f);
+            StartCoroutine(SetupPieces());
+            swappingPieces = false;
+
+        }
+        yield return null;
+
     }
     private List<int> GetColumns(List<Piece> piecesToClear)
     {
