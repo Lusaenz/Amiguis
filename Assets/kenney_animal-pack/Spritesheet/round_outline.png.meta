@@ -323,7 +323,14 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      round_outline_0: -5440439813161513500
+      round_outline_1: 1030939833016561647
+      round_outline_2: -6741584926169311572
+      round_outline_3: -1897024807251801171
+      round_outline_4: 6854790875446392661
+      round_outline_5: 660151765612931683
+      round_outline_6: 7081987494624694067
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
