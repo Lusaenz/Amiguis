@@ -64,5 +64,6 @@ public class Piece : MonoBehaviour
     {
         Move(0, 0);
     }
+
 }
 

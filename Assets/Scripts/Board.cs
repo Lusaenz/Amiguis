@@ -10,6 +10,7 @@ public class Board : MonoBehaviour
     public int width;
     public int height;
     public GameObject titleObject;
+    public int PointsPerMatch;
     public GameObject[] availablePieces;
 
     public float cameraSizeOffset;
@@ -64,13 +65,13 @@ public class Board : MonoBehaviour
     private void ClearPieceAt(int x, int y)
     {
         var pieceToClear = Pieces[x, y];
-         pieceToClear.Remove(true);
+        pieceToClear.Remove(true);
         Pieces[x, y] = null;
     }
     private Piece CreatePieceAt(int x, int y)
     {
         var selectedPiece = availablePieces[UnityEngine.Random.Range(0, availablePieces.Length)];
-        var o = Instantiate(selectedPiece, new Vector3(x, y+1, -5), Quaternion.identity);
+        var o = Instantiate(selectedPiece, new Vector3(x, y + 1, -5), Quaternion.identity);
         o.transform.parent = transform;
         Pieces[x, y] = o.GetComponent<Piece>();
         Pieces[x, y]?.Setup(x, y, this);
@@ -165,6 +166,7 @@ public class Board : MonoBehaviour
         else
         {
             ClearPieces(allMatches);
+            AwardPoints(allMatches);
         }
         startTile = null;
         endTile = null;
@@ -198,6 +200,7 @@ public class Board : MonoBehaviour
             {
                 newMatches = newMatches.Union(matches).ToList();
                 ClearPieces(matches);
+                AwardPoints(matches);
             }
         });
         if (newMatches.Count > 0)
@@ -355,6 +358,11 @@ public class Board : MonoBehaviour
         }
 
         return foundMatches;
+    }
+    public void AwardPoints(List<Piece> allMatches)
+    {
+        GameManager.Instance.AddPoints(allMatches.Count * PointsPerMatch);
+
     }
 
 }
