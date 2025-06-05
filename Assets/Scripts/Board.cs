@@ -107,7 +107,7 @@ public class Board : MonoBehaviour
 
     public void TileDown(Tile tile_) // funcion de cuando selecciono una casilla
     {
-        if (!swappingPieces)
+        if (!swappingPieces && GameManager.Instance.gameState == GameManager.GameState.InGame)
         {
             startTile = tile_;
         }
@@ -115,7 +115,7 @@ public class Board : MonoBehaviour
     }
     public void TileOver(Tile tile_) // funcion de cuando arrastro el mouse
     {
-        if (!swappingPieces)
+        if (!swappingPieces && GameManager.Instance.gameState == GameManager.GameState.InGame)
         {
             endTile = tile_;
         }
@@ -123,7 +123,7 @@ public class Board : MonoBehaviour
     }
     public void TileUp(Tile tile_) // funcion de cuando suelto el mouse
     {
-        if (!swappingPieces)
+        if (!swappingPieces && GameManager.Instance.gameState == GameManager.GameState.InGame)
         {
             if (startTile != null && endTile != null && IsCloseTo(startTile, endTile))
             {
