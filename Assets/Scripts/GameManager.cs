@@ -8,7 +8,7 @@ using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
-   public static GameManager Instance;
+    public static GameManager Instance;
     public float timeToMatch = 10f;
     public float currentTimeToMatch = 0;
     public enum GameState
@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     public UnityEvent<GameState> OnGameStateUpdated;
 
 
-   private void Awake()
+    private void Awake()
     {
         if (Instance == null)
         {
@@ -52,6 +52,17 @@ public class GameManager : MonoBehaviour
         Points += newPoints;
         OnPointsUpdated?.Invoke();
         currentTimeToMatch = 0;
+    }
+    public void RestartGame()
+    {
+        Points = 0;
+        gameState = GameState.InGame;
+        OnGameStateUpdated?.Invoke(gameState);
+        currentTimeToMatch = 0f;
+    }
+    public void ExitGame()
+    {
+        
     }
 
 }
