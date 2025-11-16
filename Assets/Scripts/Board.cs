@@ -22,15 +22,17 @@ public class Board : MonoBehaviour
     Tile endTile;
 
     bool swappingPieces = false;
+    bool setUpMade = false;
     void Start()
     {
         Tiles = new Tile[width, height];
         Pieces = new Piece[width, height];
-        SetupBoard();
-        PositionCamera();
 
         if (GameManager.Instance.gameState == GameManager.GameState.InGame)
         {
+            SetupBoard();
+            PositionCamera();
+            setUpMade = true;
             StartCoroutine(SetupPieces());
         }
         GameManager.Instance.OnGameStateUpdated.AddListener(OnGameStateUpdated);
@@ -43,11 +45,17 @@ public class Board : MonoBehaviour
     {
         if (newState == GameManager.GameState.InGame)
         {
+            if (!setUpMade)
+            {
+                SetupBoard();
+                PositionCamera();
+                setUpMade = true;
+            }
             StartCoroutine(SetupPieces());
         }
         if (newState == GameManager.GameState.GameOver)
         {
-            ClearAllPieces(); 
+            ClearAllPieces();
         }
     }
 

@@ -142,13 +142,13 @@ TextureImporter:
       name: giraffe_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 8
-        width: 112
-        height: 112
+        x: 6
+        y: 4
+        width: 114
+        height: 114
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 9, y: 11, z: 7, w: 4}
       customData: 
       outline: []
       physicsShape: []
@@ -164,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5f57f5de25afb4e1f99eb51e81f95798
     internalID: 0
     vertices: []
     indices: 
