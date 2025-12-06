@@ -57,6 +57,24 @@ public class Board : MonoBehaviour
         {
             ClearAllPieces();
         }
+        if (newState == GameManager.GameState.Idle)
+        {
+            ResetBoard();
+            ResetCamera();
+            setUpMade = false;
+        }
+    }
+     private void ResetCamera()
+    {
+        Camera.main.orthographicSize = 5;
+        Camera.main.transform.position = new Vector3(0, 0,-10);
+    }
+    private void ResetBoard()
+    {
+        foreach (Transform item in transform)
+        {
+            Destroy(item.gameObject);
+        }
     }
 
     private IEnumerator SetupPieces()

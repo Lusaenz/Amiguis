@@ -4,10 +4,12 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using TMPro;
+using DG.Tweening;
 public class UIPoints : MonoBehaviour
 {
     int displayedPoints = 0;
     public TextMeshProUGUI pointsLabel;
+    public RectTransform icon;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,12 +39,17 @@ public class UIPoints : MonoBehaviour
     }
     IEnumerator UpdatePointsCoroutine()
     {
+        var ogPosition = icon.anchoredPosition;
+        var tween = icon.DOShakeAnchorPos(0.25f, 20, 30).SetEase(Ease.InBounce);
+        tween.SetLoops(-1);
         while (displayedPoints < GameManager.Instance.Points)
         {
             displayedPoints++;
-            pointsLabel.text = displayedPoints.ToString();
+            pointsLabel.text = displayedPoints.ToString("D5");
             yield return new WaitForSeconds(0.1f);
         }
+        tween.Kill();
+        icon.anchoredPosition = ogPosition;
         yield return null;
     }
     

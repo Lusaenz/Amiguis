@@ -144,11 +144,11 @@ TextureImporter:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 43
-        height: 43
+        width: 48
+        height: 49
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 6, y: 9, z: 0, w: 0}
+      border: {x: 1, y: 2, z: 0, w: 1}
       customData: 
       outline: []
       physicsShape: []
@@ -156,6 +156,28 @@ TextureImporter:
       bones: []
       spriteID: cce0c36c6b90263c0800000000000000
       internalID: -4367918007981437236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: yellow_button11_1
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 28
+        width: 5
+        height: 1
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2f63d25f8e1c24f3aabb767c3e5c9c19
+      internalID: -2039761229
       vertices: []
       indices: 
       edges: []
@@ -175,6 +197,7 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       yellow_button11_0: -4367918007981437236
+      yellow_button11_1: -2039761229
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
