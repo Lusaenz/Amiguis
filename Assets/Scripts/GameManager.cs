@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
         InGame,
         GameOver,
         Pause,
+        Options,
     }
     public GameState gameState;
 
@@ -85,6 +86,11 @@ public class GameManager : MonoBehaviour
         gameState = GameState.Idle;
         OnGameStateUpdated?.Invoke(gameState);
     }
+      public void Options()
+    {
+        gameState = GameState.Options;
+        OnGameStateUpdated?.Invoke(gameState);
+    }
     public void Pause ()
     {
         gameState = GameState.Pause;
@@ -95,5 +101,4 @@ public class GameManager : MonoBehaviour
         gameState = GameState.InGame;
         OnGameStateUpdated?.Invoke(gameState);
     }
-
 }
